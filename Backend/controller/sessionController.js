@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const userSessionModel = require("../Models/userSessionModel");
+const userSessionModel = require("../Models/userSessioModel");
 
 const createSession = async (req, res) => {
   const sessionKey = Math.floor(100000 + Math.random() * 900000);
