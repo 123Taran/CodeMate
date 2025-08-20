@@ -64,4 +64,4 @@ const logoutUser = async (req,res) =>{
     return res.status(201).send("Succesfull logged Out")
 }
 
-module.exports = {loginUser,registerUser};
+module.exports = {loginUser,registerUser,logoutUser};
