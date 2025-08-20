@@ -1,11 +1,13 @@
 const express = require("express");
 const connectionDb = require("./config/db");
 const userRoutes = require("./Routes/userRoute");
+const sessionRoute = require("./Routes/SessionRoute");
 
 const app = express();
 
 app.use(express.json());
 app.use("/api/user",userRoutes);
+app.use("api/session",sessionRoute)
 
 app.get("/",function(req,res){
     res.send("Hello world!");
