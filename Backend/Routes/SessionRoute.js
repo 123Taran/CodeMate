@@ -1,6 +1,6 @@
 const express = require("express");
-const createSession = require("../controller/sessionController");
-const checkForLogin = require("../middleware/AuthMiddleware");
+const {createSession,joinSession, leaveSession} = require("../controllers/sessionController");
+const checkForLogin = require("../middlewares/AuthMiddleware");
 
 const router = express.Router();
 
@@ -13,5 +13,10 @@ router.post("/createSession",(req, res) => {
 
   createSession(req,res);
 });
+
+
+router.post("/joinSession",joinSession);
+
+router.post("/leaveSession",leaveSession);
 
 module.exports = router;
