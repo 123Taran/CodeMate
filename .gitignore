@@ -1,1 +1,12 @@
 Backend/node_modules/
+frontend/node_modules/
+
+# React build folder
+frontend/build/
+
+# Env files
+*.env
+frontend/.env
+
+# Logs
+*.log
