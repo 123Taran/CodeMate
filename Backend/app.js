@@ -3,6 +3,7 @@ const connectionDb = require("./config/db");
 const userRoutes = require("./Routes/userRoute");
 const sessionRoute = require("./Routes/SessionRoute");
 const cookieParser = require("cookie-parser");
+require("./Scheduler/Schedule");
 
 
 const app = express();
