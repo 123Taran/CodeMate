@@ -8,4 +8,4 @@ const userSchema = mongoose.Schema({
     "SessionStatus" : {curr_Session : {type : String, enum : ["free","inSession"], default : "free"}, S_id : {type : Number, default : 0}}
 })
 
-module.exports = mongoose.model("user",userSchema);
+module.exports = mongoose.model("user",userSchema); 
