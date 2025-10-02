@@ -11,15 +11,15 @@ const registerUser = async function (req, res) {
     return res.status(400).send("Some Error Occurred");
   } else {
     bcrypt.genSalt(10, function (err, salt) {
-      bcrypt.hash(data.password,salt, async function (err, hash) {
+      bcrypt.hash(data.password, salt, async function (err, hash) {
         await userModel.create({
           name: data.name,
           email: data.email,
           password: hash,
-          role : data.role
+          role: data.role,
         });
 
-        return res.status(201).send("User Created Successfully");
+        return res.status(201).json({ message: "User Created Successfully" });
       });
     });
   }
@@ -29,39 +29,35 @@ const loginUser = async function (req, res) {
   const data = req.body;
 
   const foundUser = await userModel.findOne({
-    email: data.email
+    email: data.email,
   });
 
   if (foundUser !== null) {
-    if(await bcrypt.compare(data.password,foundUser.password)){
-        const token = jwt.sign({email : data.email},process.env.JWT_SECRET_KEY);
+    if (await bcrypt.compare(data.password, foundUser.password)) {
+      const token = jwt.sign({ email: data.email }, process.env.JWT_SECRET_KEY);
 
-        res.cookie("token",token);
+      res.cookie("token", token);
 
-        
-
-        return res.status(201).send("Succesfully logged in");
-    }
-    else{
-        return res.status(400).send("Error");
+      return res.status(200).json({ message: "Successfully logged in", token });
+    } else {
+      return res.status(400).json({ message: "Invalid credentials" });
     }
   } else {
-    return res.status(400).send("Error");
+    return res.status(400).json({ message: "Invalid credentials" });
   }
 };
 
-const logoutUser = async (req,res) =>{
+const logoutUser = async (req, res) => {
+  const curr = jwt.verify(req.cookies.token, process.env.JWT_SECRET_KEY);
 
-  const curr = jwt.verify(req.cookies.token,process.env.JWT_SECRET_KEY);
-
-  const user = await userModel.findOne({email : curr.email});
+  const user = await userModel.findOne({ email: curr.email });
 
   user.SessionStatus.curr_Session = "free";
   user.SessionStatus.S_id = 0;
   await user.save();
 
-    res.cookie("token","");
-    return res.status(201).send("Succesfull logged Out")
-}
+  res.cookie("token", "");
+  return res.status(201).send("Succesfull logged Out");
+};
 
-module.exports = {loginUser,registerUser,logoutUser};
+module.exports = { loginUser, registerUser, logoutUser };
