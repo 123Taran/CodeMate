@@ -8,13 +8,13 @@ function Login(props) {
   const [success, setSuccess] = useState("");
 
   const handleLogin = async (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
     setError("");
     setSuccess("");
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/user/login", 
+        "http://localhost:5000/api/user/login",
         {
           email,
           password,
@@ -23,9 +23,12 @@ function Login(props) {
       console.log(response.data);
       setSuccess("Login successful!");
 
-      if (response.data.token) {
-        localStorage.setItem("token", response.data.token);
-      }
+      props.setisLoggedIn(true);
+
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("username", response.data.user.name);
+      localStorage.setItem("role", response.data.user.role);
+      localStorage.setItem("inSession", response.data.user.inSession);
     } catch (err) {
       console.log(err.response?.data);
       setError(err.response?.data?.message || "Login failed");
@@ -37,16 +40,18 @@ function Login(props) {
       <div
         className={`${
           props.show !== "Login" ? "hidden" : "absolute"
-        } bg-gray-900 text-white w-min border right-0`}
+        } bg-black text-white w-min border right-4 p-4`}
       >
+        <p className="inline text-2xl text-bold">Login</p>
+
         <button
-          className="relative left-56 text-3xl"
+          className="relative left-40 text-3xl"
           onClick={() => props.setShow("none")}
         >
           &#10005;
         </button>
 
-        <form onSubmit={handleLogin} className="flex flex-col">
+        <form onSubmit={handleLogin} className="flex flex-col mt-2">
           <label htmlFor="email">Email Id</label>
           <input
             className="bg-gray-500 w-64 mb-5"

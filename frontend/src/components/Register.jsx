@@ -37,16 +37,18 @@ function Register(props) {
       <div
         className={`${
           props.show !== "register" ? "hidden" : "absolute"
-        } bg-gray-900 text-white w-min border right-0`}
+        } bg-black text-white w-min border right-4 p-4`}
       >
+
+        <p className = "inline text-2xl text-bold">Register</p>
         <button
-          className="relative left-56 text-3xl"
+          className="relative inline-block left-36 text-3xl"
           onClick={() => props.setShow("none")}
         >
           &#10005;
         </button>
 
-        <form onSubmit={handleSubmit} className="flex flex-col">
+        <form onSubmit={handleSubmit} className="flex flex-col mt-2">
           <label htmlFor="name">Name</label>
           <input
             className="bg-gray-500 w-64 mb-5"
