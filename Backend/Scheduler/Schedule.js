@@ -29,4 +29,4 @@ const task = async () => {
   }
 };
 
-cron.schedule("*/30 * * * *", task);
+cron.schedule("* * * * *", task);

@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-function Register(props) {
+export default function Register({ show, setShow }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("Teaching Assistant"); 
+  const [role, setRole] = useState("Teaching Assistant");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -16,88 +16,104 @@ function Register(props) {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/user/register", 
-        {
-          name,
-          email,
-          password,
-          role,
-        }
+        "http://localhost:5000/api/user/register",
+        { name, email, password, role }
       );
-      console.log(response.data);
+
       setSuccess("Registration successful!");
+      setName("");
+      setEmail("");
+      setPassword("");
+      setRole("Teaching Assistant");
+      console.log(response.data);
     } catch (err) {
-      console.log(err.response?.data);
       setError(err.response?.data?.message || "Registration failed");
+      console.error(err.response?.data);
     }
   };
 
+  if (show !== "register") return null;
+
   return (
-    <>
-      <div
-        className={`${
-          props.show !== "register" ? "hidden" : "absolute"
-        } bg-black text-white w-min border right-4 p-4`}
-      >
-
-        <p className = "inline text-2xl text-bold">Register</p>
+    <div className="absolute right-4 top-36 bg-gray-900 text-white p-6 rounded-lg shadow-lg w-80">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold">Register</h2>
         <button
-          className="relative inline-block left-36 text-3xl"
-          onClick={() => props.setShow("none")}
+          className="text-2xl hover:text-red-500 transition"
+          onClick={() => setShow("none")}
         >
-          &#10005;
+          &times;
         </button>
+      </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col mt-2">
-          <label htmlFor="name">Name</label>
+      <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
+        <div>
+          <label htmlFor="name" className="block mb-1 text-gray-300">
+            Name
+          </label>
           <input
-            className="bg-gray-500 w-64 mb-5"
             type="text"
             id="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            className="w-full p-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
           />
+        </div>
 
-          <label htmlFor="email">Email Id</label>
+        <div>
+          <label htmlFor="email" className="block mb-1 text-gray-300">
+            Email
+          </label>
           <input
-            className="bg-gray-500 w-64 mb-5"
             type="email"
             id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            className="w-full p-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
           />
+        </div>
 
-          <label htmlFor="password">Password</label>
+        <div>
+          <label htmlFor="password" className="block mb-1 text-gray-300">
+            Password
+          </label>
           <input
-            className="bg-gray-500 w-64 mb-5"
             type="password"
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            className="w-full p-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
           />
+        </div>
 
-          <label htmlFor="role">Choose a Role:</label>
+        <div>
+          <label htmlFor="role" className="block mb-1 text-gray-300">
+            Choose a Role
+          </label>
           <select
-            name="role"
             id="role"
-            className="w-64 mb-5 bg-gray-500"
             value={role}
             onChange={(e) => setRole(e.target.value)}
+            className="w-full p-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="Teaching Assistant">Teaching Assistant</option>
             <option value="Student">Student</option>
           </select>
+        </div>
 
-          <button type="submit" className="w-24 bg-blue-700 m-auto">
-            Submit
-          </button>
+        <button
+          type="submit"
+          className="w-full bg-blue-600 hover:bg-blue-700 transition-colors py-2 rounded text-white font-medium"
+        >
+          Submit
+        </button>
 
-          {error && <p className="text-red-500 mt-2">{error}</p>}
-          {success && <p className="text-green-500 mt-2">{success}</p>}
-        </form>
-      </div>
-    </>
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+        {success && <p className="text-green-500 text-sm">{success}</p>}
+      </form>
+    </div>
   );
 }
-
-export default Register;

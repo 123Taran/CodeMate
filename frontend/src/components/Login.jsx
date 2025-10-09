@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-function Login(props) {
+export default function Login({ show, setShow, setisLoggedIn }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -15,78 +15,84 @@ function Login(props) {
     try {
       const response = await axios.post(
         "http://localhost:5000/api/user/login",
-        {
-          email,
-          password,
-        }
+        { email, password }
       );
-      console.log(response.data);
+
+      const { token, user } = response.data;
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("username", user.name);
+      localStorage.setItem("role", user.role);
+      localStorage.setItem("inSession", user.inSession);
+
       setSuccess("Login successful!");
-
-      props.setisLoggedIn(true);
-
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("username", response.data.user.name);
-      localStorage.setItem("role", response.data.user.role);
-      localStorage.setItem("inSession", response.data.user.inSession);
+      setisLoggedIn(true);
     } catch (err) {
-      console.log(err.response?.data);
       setError(err.response?.data?.message || "Login failed");
+      console.error(err.response?.data);
     }
   };
 
+  if (show !== "Login") return null;
+
   return (
-    <>
-      <div
-        className={`${
-          props.show !== "Login" ? "hidden" : "absolute"
-        } bg-black text-white w-min border right-4 p-4`}
-      >
-        <p className="inline text-2xl text-bold">Login</p>
-
+    <div className="absolute right-4 top-36 bg-gray-900 text-white p-6 rounded-lg shadow-lg w-80">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold">Login</h2>
         <button
-          className="relative left-40 text-3xl"
-          onClick={() => props.setShow("none")}
+          className="text-2xl hover:text-red-500 transition"
+          onClick={() => setShow("none")}
         >
-          &#10005;
+          &times;
         </button>
+      </div>
 
-        <form onSubmit={handleLogin} className="flex flex-col mt-2">
-          <label htmlFor="email">Email Id</label>
+      <form onSubmit={handleLogin} className="flex flex-col space-y-4">
+        <div>
+          <label htmlFor="email" className="block mb-1 text-gray-300">
+            Email
+          </label>
           <input
-            className="bg-gray-500 w-64 mb-5"
             type="email"
             id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            className="w-full p-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
           />
+        </div>
 
-          <label htmlFor="password">Password</label>
+        <div>
+          <label htmlFor="password" className="block mb-1 text-gray-300">
+            Password
+          </label>
           <input
-            className="bg-gray-500 w-64 mb-5"
             type="password"
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            className="w-full p-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
           />
-
-          <button type="submit" className="w-24 bg-blue-700 m-auto">
-            Submit
-          </button>
-
-          {error && <p className="text-red-500 mt-2">{error}</p>}
-          {success && <p className="text-green-500 mt-2">{success}</p>}
-        </form>
+        </div>
 
         <button
-          className="text-blue-500 mt-5"
-          onClick={() => props.setShow("register")}
+          type="submit"
+          className="w-full bg-blue-600 hover:bg-blue-700 transition-colors py-2 rounded text-white font-medium"
         >
-          Don't have an account? Click here!
+          Submit
         </button>
-      </div>
-    </>
+
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+        {success && <p className="text-green-500 text-sm">{success}</p>}
+      </form>
+
+      <button
+        className="text-blue-400 mt-4 text-sm hover:underline"
+        onClick={() => setShow("register")}
+      >
+        Don't have an account? Register here
+      </button>
+    </div>
   );
 }
-
-export default Login;
