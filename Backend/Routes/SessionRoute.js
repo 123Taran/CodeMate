@@ -1,5 +1,5 @@
 const express = require("express");
-const {createSession,joinSession, leaveSession} = require("../controller/sessionController");
+const {createSession,joinSession, leaveSession, getParticipantsList} = require("../controller/sessionController");
 const checkForLogin = require("../middleware/AuthMiddleware");
 
 const router = express.Router();
@@ -16,6 +16,8 @@ router.post("/createSession",(req, res) => {
 
 
 router.post("/joinSession",joinSession);
+
+router.get("/getParticipantsList",getParticipantsList)
 
 router.post("/leaveSession",leaveSession);
 
