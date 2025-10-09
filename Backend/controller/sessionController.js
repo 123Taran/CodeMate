@@ -16,6 +16,8 @@ const createSession = async (req, res) => {
     participants: req.body.participants,
     startTime: req.body.startTime,
     endTime: req.body.endTime,
+    Title : req.body.title,
+    Description : req.body.description
   });
 
   res.send(createdSession);
@@ -23,10 +25,10 @@ const createSession = async (req, res) => {
 
 const joinSession = async (req, res) => {
   if (req.user.SessionStatus.curr_Session === "inSession") {
-    return res.status(401).send("A user can only join one session");
+    return res.status(401).json({mesasge :"A user can only join one session"});
   }
   const foundedSession = await userSessionModel.findOne({
-    key: req.body.key,
+    key: req.body.sessionKey,
   });
 
   if (!foundedSession) {
@@ -34,26 +36,59 @@ const joinSession = async (req, res) => {
       .status(401)
       .send("Wrong SessionId provied please check the details correctly");
   } else {
+    const currentTime = new Date();
+
     if (foundedSession.status === "Expired") {
-      return res.status(401).send("Session Expired");
+      return res.status(401).json({message : "Session Expired"});
+    } else if (foundedSession.status === "Scheduled") {
+      if (
+        currentTime >= foundedSession.startTime &&
+        currentTime <= foundedSession.endTime
+      ) {
+        foundedSession.status = "Active";
+        foundedSession.participants.push({
+          name: req.user.name,
+          joinedAt: currentTime,
+        });
+
+        req.user.SessionStatus.curr_Session = "inSession";
+        req.user.SessionStatus.S_id = req.body.key;
+        await req.user.save();
+
+        await foundedSession.save();
+
+        return res.status(200).json({message : "Succesfully joined"});
+      } else if (currentTime > foundedSession.endTime) {
+        foundedSession.status = "Expired";
+        await foundedSession.save();
+        return res.status(401).send("Session Expired");
+      } else if (currentTime < foundedSession.startTime) {
+        return res.status(401).send("Wait for the Session to start");
+      }
     } else if (foundedSession.status === "Active") {
-      const currentTime = new Date();
-      foundedSession.participants.push({
-        name: req.user.name,
-        joinedAt: currentTime,
-      });
+      if (currentTime > foundedSession.endTime) {
+        foundedSession.status = "Expired";
+        await foundedSession.save();
+        return res.status(401).send("Session Expired");
+      } else {
+        foundedSession.participants.push({
+          name: req.user.name,
+          joinedAt: currentTime,
+        });
 
-      req.user.SessionStatus.curr_Session = "inSession";
-      req.user.SessionStatus.S_id = req.body.key;
+        req.user.SessionStatus.curr_Session = "inSession";
+        req.user.SessionStatus.S_id = req.body.key;
 
-      await req.user.save();
-      await foundedSession.save();
-      return res.status(200).send("Succesfully joined");
+        await req.user.save();
+        await foundedSession.save();
+        return res.status(200).send("Succesfully joined");
+      }
     }
   }
 };
 
 const leaveSession = async (req, res) => {
+
   const foundedSession = await userSessionModel.findOne({
     key: req.user.SessionStatus.S_id,
   });
@@ -62,9 +97,12 @@ const leaveSession = async (req, res) => {
   req.user.SessionStatus.S_id = 0;
   await req.user.save();
 
+  
+
   const user_In_Session = foundedSession.participants.find(
     (p) => p.name === req.user.name
   );
+
 
   user_In_Session.leftAt = new Date();
 

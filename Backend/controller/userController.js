@@ -36,9 +36,19 @@ const loginUser = async function (req, res) {
     if (await bcrypt.compare(data.password, foundUser.password)) {
       const token = jwt.sign({ email: data.email }, process.env.JWT_SECRET_KEY);
 
-      res.cookie("token", token);
 
-      return res.status(200).json({ message: "Successfully logged in", token });
+      return res
+        .status(200)
+        .json({
+          message: "Successfully logged in",
+          token,
+          user: {
+            name: foundUser.name,
+            email: foundUser.email,
+            role: foundUser.role,
+            inSession : foundUser.inSession
+          },
+        });
     } else {
       return res.status(400).json({ message: "Invalid credentials" });
     }
@@ -48,7 +58,7 @@ const loginUser = async function (req, res) {
 };
 
 const logoutUser = async (req, res) => {
-  const curr = jwt.verify(req.cookies.token, process.env.JWT_SECRET_KEY);
+  const curr = jwt.verify(req.cookies.token, process.env.JWT_SECRET_KEY,{expiresIn : "1hr"});
 
   const user = await userModel.findOne({ email: curr.email });
 
